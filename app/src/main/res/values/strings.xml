@@ -1,0 +1,37 @@
+<resources>
+    <string name="app_name">Back Me</string>
+    <string name="notification_message_uploading">Uploading</string>
+    <string name="notification_message_finished">Finished</string>
+    <string name="txt_choose_folder">Choose Folder</string>
+    <string name="txt_target_ip">Target IP</string>
+    <string name="txt_no_ip">No IP</string>
+    <string name="title_activity_settings">Settings</string>
+
+    <!-- Preference Titles -->
+    <string name="messages_header">Messages</string>
+    <string name="sync_header">Sync</string>
+
+    <!-- Messages Preferences -->
+    <string name="signature_title">Your signature</string>
+    <string name="reply_title">Default reply action</string>
+
+    <!-- Sync Preferences -->
+    <string name="sync_title">Sync email periodically</string>
+    <string name="attachment_title">Download incoming attachments</string>
+    <string name="attachment_summary_on">Automatically download attachments for incoming emails
+    </string>
+    <string name="attachment_summary_off">Only download attachments when manually requested</string>
+    <string name="txt_backup_interval">Backup Interval</string>
+
+    <string name="alarm_interval_mode">interval_mode</string>
+    <string name="alarm_hour">hour</string>
+    <string name="alarm_day">day</string>
+    <string name="alarm_interval">interval</string>
+    <string name="interval_hour_of_day">interval_hour_of_day</string>
+    <string name="txt_run_task">Run Task</string>
+    <string name="hello">Hello World, FileExplore!</string>
+    <string name="txt_backup_folder">Backup folder</string>
+    <string name="alarm_idle">idle</string>
+    <string name="txt_no_backup">No backup</string>
+    <string name="last_backup">last_backup</string>
+</resources>

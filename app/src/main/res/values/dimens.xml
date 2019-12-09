@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="txt_setting_padleft">10dp</dimen>
+    <dimen name="txt_setting_textsize">18sp</dimen>
+    <dimen name="txt_setting_width">0dp</dimen>
+    <dimen name="txt_setting_height">40dp</dimen>
+</resources>

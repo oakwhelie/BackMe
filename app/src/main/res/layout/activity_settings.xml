@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".SettingsActivity">
+
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/border"
+        android:onClick="backupInterval">
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="@dimen/txt_setting_width"
+            android:layout_height="@dimen/txt_setting_height"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:onClick="backupInterval"
+            android:paddingLeft="@dimen/txt_setting_padleft"
+            android:text="@string/txt_backup_interval"
+            android:textColor="@android:color/background_dark"
+            android:textSize="@dimen/txt_setting_textsize" />
+
+        <TextView
+            android:id="@+id/backup_interval_display"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:onClick="backupInterval"
+            android:paddingLeft="10dp"
+            android:textColor="@android:color/background_dark"
+            android:textSize="18sp" />
+    </TableRow>
+
+    <TableRow
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/border"
+        android:onClick="backupFolder">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:onClick="backupFolder"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/textView4"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/txt_setting_height"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:onClick="backupFolder"
+                android:paddingLeft="@dimen/txt_setting_padleft"
+                android:paddingRight="@dimen/txt_setting_padleft"
+                android:text="@string/txt_backup_folder"
+                android:textColor="@android:color/background_dark"
+                android:textSize="@dimen/txt_setting_textsize" />
+
+            <TextView
+                android:id="@+id/backup_folder_display"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:onClick="backupFolder"
+                android:paddingLeft="@dimen/txt_setting_padleft"
+                android:paddingRight="@dimen/txt_setting_padleft"
+                android:textColor="@android:color/background_dark"
+                android:textSize="@dimen/txt_setting_textsize" />
+        </LinearLayout>
+
+    </TableRow>
+
+
+</TableLayout>
