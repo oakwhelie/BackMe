@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.SystemClock;
 
 import java.util.Calendar;
 
@@ -38,18 +39,23 @@ public class BootReceiver extends BroadcastReceiver
             if (pref.getString(context.getString(R.string.alarm_interval_mode), null).equals(context.getString(R.string.alarm_hour)))
             {
                 calendar.set(Calendar.HOUR_OF_DAY, pref.getInt(context.getString(R.string.alarm_interval), 0));
-                alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pintent);
+                alarm.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pintent);
             }
             else if (pref.getString(context.getString(R.string.alarm_interval_mode), null).equals(context.getString(R.string.alarm_day)))
             {
                 calendar.set(Calendar.DAY_OF_WEEK, pref.getInt(context.getString(R.string.alarm_interval), 1));
                 calendar.set(Calendar.HOUR_OF_DAY, pref.getInt(context.getString(R.string.interval_hour_of_day), 0));
-                alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY * 7, pintent);
+                alarm.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY * 7, pintent);
             }
             else if(pref.getString(context.getString(R.string.alarm_interval_mode), null).equals(context.getString(R.string.alarm_idle)))
             {
                 Intent service = new Intent(context.getApplicationContext(), UploadService.class);
                 context.startService(service);
+            }
+            else if(pref.getString(context.getString(R.string.alarm_interval_mode), null).equals(context.getString(R.string.alarm_once_every_x)))
+            {
+                int interval = pref.getInt(context.getString(R.string.alarm_interval), 1);
+                alarm.setRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime(), AlarmManager.INTERVAL_HOUR*interval, pintent);
             }
         }
     }

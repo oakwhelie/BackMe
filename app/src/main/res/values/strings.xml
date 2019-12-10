@@ -34,4 +34,7 @@
     <string name="alarm_idle">idle</string>
     <string name="txt_no_backup">No backup</string>
     <string name="last_backup">last_backup</string>
+    <string name="alarm_once_every_x">once_every_x</string>
+    <string name="txt_backup_now">Backup now</string>
+    <string name="ipset">ipset</string>
 </resources>

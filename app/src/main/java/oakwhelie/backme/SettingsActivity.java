@@ -4,8 +4,6 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -19,8 +17,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-
-import java.io.File;
 
 import common.globals.Globals;
 
@@ -47,6 +43,8 @@ public class SettingsActivity extends AppCompatActivity
                 backup_interval.setText("Day: "+val);
             if(interval_mode.equals(getString(R.string.alarm_idle)))
                 backup_interval.setText("When idle");
+            if(interval_mode.equals(getString(R.string.alarm_once_every_x)))
+                backup_interval.setText("Every: "+val+" hour");
         }
 
         String backup_folder = pref.getString("path", "no folder selected");
@@ -75,7 +73,7 @@ public class SettingsActivity extends AppCompatActivity
                     path = Environment.getExternalStorageDirectory()+"/"+temp[1]+"/";
                 else
                 {
-                    String ext[] = Globals.getStorageDirectories();
+                    String[] ext = Globals.getStorageDirectories();
                     path = ext[1]+"/"+temp[1];
                 }
             }
@@ -85,7 +83,7 @@ public class SettingsActivity extends AppCompatActivity
                     path = Environment.getExternalStorageDirectory().getAbsolutePath()+"/";
                 else
                 {
-                    String ext[] = Globals.getStorageDirectories();
+                    String[] ext = Globals.getStorageDirectories();
                     path = ext[1];
                 }
             }
@@ -120,6 +118,41 @@ public class SettingsActivity extends AppCompatActivity
                 editor.apply();
                 alertDialog.cancel();
                 backup_interval.setText("When idle");
+            }
+        });
+
+        Button oncebutton = new Button(this);
+        oncebutton.setText("Once every x hour");
+        oncebutton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final NumberPicker numberPicker = new NumberPicker(SettingsActivity.this);
+                numberPicker.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
+                numberPicker.setMaxValue(12);
+                numberPicker.setMinValue(1);
+                new AlertDialog.Builder(SettingsActivity.this)
+                        .setView(numberPicker)
+                        .setTitle("Hour")
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                int val = numberPicker.getValue();
+                                Toast.makeText(SettingsActivity.this, "every: "+val+" hour", Toast.LENGTH_LONG).show();
+                                SharedPreferences.Editor editor = getSharedPreferences(getString(R.string.app_name), MODE_PRIVATE).edit();
+                                editor.putString(getString(R.string.alarm_interval_mode), getString(R.string.alarm_once_every_x));
+                                editor.putInt(getString(R.string.alarm_interval), val);
+                                editor.apply();
+                                alertDialog.cancel();
+                                backup_interval.setText("every: "+val+" hour");
+                            }
+                        })
+                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                //cancel
+                            }
+                        })
+                        .show();
             }
         });
 
@@ -242,6 +275,7 @@ public class SettingsActivity extends AppCompatActivity
         linearLayout.setLayoutParams(new TableRow.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         linearLayout.setOrientation(LinearLayout.VERTICAL);
         linearLayout.addView(idlebutton);
+        linearLayout.addView(oncebutton);
         linearLayout.addView(hourbutton);
         linearLayout.addView(daybutton);
 
