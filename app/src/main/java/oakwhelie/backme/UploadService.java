@@ -19,8 +19,6 @@ import com.android.volley.Cache;
 import com.android.volley.Network;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.BasicNetwork;
 import com.android.volley.toolbox.DiskBasedCache;
 import com.android.volley.toolbox.HurlStack;
@@ -172,6 +170,7 @@ public class UploadService extends IntentService
                 .setSmallIcon(R.drawable.icon)
                 .setContentTitle(getResources().getString(R.string.app_name))
                 .setContentText(getResources().getString(R.string.notification_message_uploading))
+                .setSubText("0%")
                 .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setContentIntent(null)
                 .setAutoCancel(false)
@@ -191,7 +190,6 @@ public class UploadService extends IntentService
                 if(list != null)
                 {
                     ArrayList<String>backedlist = getListOfBackedFile(server);
-                    Log.d("SEND", "BACKED: "+backedlist.size());
 
                     for (progress = 0; progress < list.length; progress++)
                     {
@@ -210,6 +208,10 @@ public class UploadService extends IntentService
                             @Override
                             public void run() {
                                 notification.setProgress(filequantity, progress, false);
+                                int percentage;
+                                if(progress != 0) percentage = (progress)*10/8;
+                                else percentage = 0;
+                                notification.setSubText(percentage+"%");
                                 notificationManagerCompat.notify(notfication_manager_upload_id, notification.build());
                             }
                         }).start();
@@ -260,28 +262,19 @@ public class UploadService extends IntentService
 // Start the queue
         requestQueue.start();
 
-        final ArrayList<String> files = new ArrayList<>();
+        ArrayList<String> files = new ArrayList<>();
         String checkfiles = "/backme/filelist.php";
 
         StringRequest request = new StringRequest
-                (Request.Method.GET, server+checkfiles, new Response.Listener<String>() {
-
-
-                    @Override
-                    public void onResponse(String response) {
-                        String[] data = response.split("<br>");
-                        for(int x=0; x<data.length; x++)
-                            files.add(data[x]);
-                    }
-                }, new Response.ErrorListener() {
-
-                    @Override
-                    public void onErrorResponse(VolleyError error)
+                (Request.Method.GET, server+checkfiles, response -> {
+                    String[] data = response.split("<br>");
+                    for(int x=0; x<data.length; x++)
                     {
-                        // TODO: Handle error
-                        Log.d("VOLLEY", error.getMessage());
-                        Log.d("VOLLEY", error.getCause().toString());
+                        files.add(data[x]);
                     }
+                }, error -> {
+                    // TODO: Handle error
+                    error.printStackTrace();
                 });
 
 // Access the RequestQueue through your singleton class.

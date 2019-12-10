@@ -20,7 +20,8 @@ public class BootReceiver extends BroadcastReceiver
     {
         if(     intent.getAction().equals(Intent.ACTION_BOOT_COMPLETED) ||
                 intent.getAction().equals(Intent.ACTION_LOCKED_BOOT_COMPLETED) ||
-                intent.getAction().equals(Intent.ACTION_SCREEN_OFF))
+                intent.getAction().equals(Intent.ACTION_SCREEN_OFF) ||
+                intent.getAction().equals("ACTION_EVERY_X"))
         {
             SharedPreferences pref = context.getSharedPreferences(context.getString(R.string.app_name), Context.MODE_PRIVATE);
             String ip = "http://" + pref.getString("target_ip", null);//"No name defined" is the default value.
@@ -32,9 +33,12 @@ public class BootReceiver extends BroadcastReceiver
             calendar.set(Calendar.MINUTE, 0);
 
             Intent serviceintent = new Intent(context.getApplicationContext(), UploadService.class);
-            serviceintent.putExtra("upLoadServerUri", upLoadServerUri);
             PendingIntent pintent = PendingIntent.getService(context.getApplicationContext(), 0, serviceintent, PendingIntent.FLAG_CANCEL_CURRENT);
             AlarmManager alarm = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+
+            Intent everyintent = new Intent(context.getApplicationContext(), BootReceiver.class);
+            everyintent.setAction("ACTION_EVERY_X");
+            PendingIntent everypintent = PendingIntent.getBroadcast(context.getApplicationContext(), 0, everyintent, PendingIntent.FLAG_CANCEL_CURRENT);
 
             if (pref.getString(context.getString(R.string.alarm_interval_mode), null).equals(context.getString(R.string.alarm_hour)))
             {
@@ -55,7 +59,10 @@ public class BootReceiver extends BroadcastReceiver
             else if(pref.getString(context.getString(R.string.alarm_interval_mode), null).equals(context.getString(R.string.alarm_once_every_x)))
             {
                 int interval = pref.getInt(context.getString(R.string.alarm_interval), 1);
-                alarm.setRepeating(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime(), AlarmManager.INTERVAL_HOUR*interval, pintent);
+                alarm.set(AlarmManager.ELAPSED_REALTIME, SystemClock.elapsedRealtime()+(AlarmManager.INTERVAL_HOUR*interval), everypintent);
+
+                Intent service = new Intent(context.getApplicationContext(), UploadService.class);
+                context.startService(service);
             }
         }
     }
