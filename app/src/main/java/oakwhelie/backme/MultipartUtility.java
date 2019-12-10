@@ -55,17 +55,15 @@ class MultipartUtility
         request.flush();
     }
 
-    public void addFilePart(String fieldName, File uploadFile) throws IOException,Exception
+    public void addFilePart(String fieldName, File uploadFile) throws Exception
     {
-        Log.d("ADDFILEPART", "sending");
-        Log.d("ADDFILEPART", uploadFile.getAbsolutePath());
+        Log.d("ADDFILEPART", uploadFile.getName());
         if(uploadFile.isDirectory())throw new Exception("for real? what do you expect to happen?");
         request.write((this.twoHyphens + this.boundary + this.crlf).getBytes());
         request.write(("Content-Disposition: form-data; name=\"" +
                 fieldName + "\";filename=\"" +
                 uploadFile.getName()+ "\"" + this.crlf).getBytes());
         request.write(this.crlf.getBytes());
-        Log.d("addFilePart:", uploadFile.getAbsolutePath());
         InputStream is=new FileInputStream(uploadFile);
         byte[] bytes = new byte[1024];
         int c=is.read(bytes);
@@ -76,7 +74,6 @@ class MultipartUtility
         request.write(this.crlf.getBytes());
         request.flush();
         is.close();
-        Log.d("ADDFILEPART", "sent");
     }
 
     public String finish() throws IOException

@@ -8,25 +8,33 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
-import android.os.Environment;
 import android.os.Handler;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
+import com.android.volley.Cache;
+import com.android.volley.Network;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.BasicNetwork;
+import com.android.volley.toolbox.DiskBasedCache;
+import com.android.volley.toolbox.HurlStack;
+import com.android.volley.toolbox.StringRequest;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
-import java.util.TimeZone;
 
 public class UploadService extends IntentService
 {
@@ -35,7 +43,9 @@ public class UploadService extends IntentService
     final int notfication_manager_upload_id = 1012142;
     NotificationCompat.Builder notification;
 
-    String upLoadServerUri = null;
+    String server1 = "http://192.168.100.6";
+    String server2 = "http://192.168.43.172";
+    String upload = "/backme/backme.php";
 
     Handler handler;
 
@@ -111,6 +121,26 @@ public class UploadService extends IntentService
     @Override
     protected void onHandleIntent(@Nullable Intent intent)
     {
+        try
+        {
+            initiateUpload(server1);
+        }
+        catch (IOException e)
+        {
+            try
+            {
+                initiateUpload(server2);
+            }
+            catch (IOException ex)
+            {
+                ex.printStackTrace();
+                notification.setContentText("FAIL TO CONNECT");
+                notificationManagerCompat.notify(1000, notification.build());
+            }
+        }
+    }
+
+    private void initiateUpload(String server) throws IOException {
         createNotificationChannel();
         notification = new NotificationCompat.Builder(this, notification_channel)
                 .setSmallIcon(R.drawable.icon)
@@ -118,46 +148,25 @@ public class UploadService extends IntentService
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setAutoCancel(true);
 
-        upLoadServerUri = intent.getStringExtra("upLoadServerUri");
-        if (upLoadServerUri == null) Toast.makeText(this, "IP is null", Toast.LENGTH_LONG).show();
         notificationManagerCompat = NotificationManagerCompat.from(this);
         Log.d("INTENT SERVICE", "START");
 
         Log.d("HTTPURLCONNECTION", "CONN");
         URL url;
-        try {
-            Log.d("HTTPURLCONNECTION", "TRY CONNECTION");
-            url = new URL("http://192.168.43.172");
-            HttpURLConnection httpcon = (HttpURLConnection)url.openConnection();
-            httpcon.setConnectTimeout(15000);
-            httpcon.setReadTimeout(15000);
-            httpcon.setRequestMethod("GET");
-            httpcon.connect();
-            Log.d("HTTPURLCONNECTION", "CONNECTED");
 
-            send();
+        Log.d("HTTPURLCONNECTION", "TRY CONNECTION");
+        url = new URL(server+upload);
+        HttpURLConnection httpcon = (HttpURLConnection)url.openConnection();
+        httpcon.setConnectTimeout(15000);
+        httpcon.setReadTimeout(15000);
+        httpcon.setRequestMethod("GET");
+        httpcon.connect();
+        Log.d("HTTPURLCONNECTION", "CONNECTED");
 
-        } catch (MalformedURLException e) {
-            Log.d("HTTPURLCONNECTION", "MALFORMED URL");
-            notification.setContentText("MALFORMED URL");
-            notificationManagerCompat.notify(1000, notification.build());
-        } catch (java.net.SocketTimeoutException e) {
-            Log.d("HTTPURLCONNECTION", "TIMEOUT");
-            notification.setContentText("TIMEOUT");
-            notificationManagerCompat.notify(1001, notification.build());
-        } catch (IOException e) {
-            Log.d("HTTPURLCONNECTION", "CANT OPEN CONNECTION");
-            notification.setContentText("CANT OPEN CONNECTION");
-            notificationManagerCompat.notify(1002, notification.build());
-        } catch (Exception e) {
-            Log.d("HTTPURLCONNECTION", "CONNECTION FAIL");
-            notification.setContentText("CONNECTION FAIL");
-            notificationManagerCompat.notify(1003, notification.build());
-        }
-
+        send(server);
     }
 
-    public void send()
+    public void send(String server)
     {
         notification = new NotificationCompat.Builder(this, notification_channel)
                 .setSmallIcon(R.drawable.icon)
@@ -173,21 +182,29 @@ public class UploadService extends IntentService
         startForeground(notfication_manager_upload_id, notification.build());
         try
         {
-            MultipartUtility m = new MultipartUtility(this, upLoadServerUri);//now add you different data parts;
+            MultipartUtility m = new MultipartUtility(this, server+upload);//now add you different data parts;
 
             if(file.isDirectory())
             {
-                String list[] = file.list();
+                String[] list = file.list();
                 Log.d("SEND", file.list().length+"");
                 if(list != null)
                 {
+                    ArrayList<String>backedlist = getListOfBackedFile(server);
+                    Log.d("SEND", "BACKED: "+backedlist.size());
+
                     for (progress = 0; progress < list.length; progress++)
                     {
                         File temp = new File(path + list[progress]);
-                        if(temp.isFile()) m.addFilePart("file_part[]", temp);
+
+                        if(temp.isFile())
+                        {
+                            if(!backedlist.contains(temp.getName()))
+                                m.addFilePart("file_part[]", temp);
+                            else
+                                Log.d("SEND", "ALREADY BACKED UP");
+                        }
                         else Log.d("SEND", "TEMP IS NOT FILE");
-                        Log.d("SEND", temp.getAbsolutePath());
-                        Log.d("SEND", temp.getPath());
 
                         new Thread(new Runnable() {
                             @Override
@@ -196,7 +213,6 @@ public class UploadService extends IntentService
                                 notificationManagerCompat.notify(notfication_manager_upload_id, notification.build());
                             }
                         }).start();
-                        Log.d("SEND", "LOOP "+progress);
                     }
                     notification.setProgress(0,0,false);
                     notification.setContentText(getResources().getString(R.string.notification_message_finished));
@@ -226,5 +242,51 @@ public class UploadService extends IntentService
         String date = formatter.format(calendar.getTime());
         editor.putString(getString(R.string.last_backup), date);
         editor.apply();
+    }
+
+    private ArrayList<String> getListOfBackedFile(String server)
+    {
+        RequestQueue requestQueue;
+
+// Instantiate the cache
+        Cache cache = new DiskBasedCache(getCacheDir(), 1024 * 1024); // 1MB cap
+
+// Set up the network to use HttpURLConnection as the HTTP client.
+        Network network = new BasicNetwork(new HurlStack());
+
+// Instantiate the RequestQueue with the cache and network.
+        requestQueue = new RequestQueue(cache, network);
+
+// Start the queue
+        requestQueue.start();
+
+        final ArrayList<String> files = new ArrayList<>();
+        String checkfiles = "/backme/filelist.php";
+
+        StringRequest request = new StringRequest
+                (Request.Method.GET, server+checkfiles, new Response.Listener<String>() {
+
+
+                    @Override
+                    public void onResponse(String response) {
+                        String[] data = response.split("<br>");
+                        for(int x=0; x<data.length; x++)
+                            files.add(data[x]);
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error)
+                    {
+                        // TODO: Handle error
+                        Log.d("VOLLEY", error.getMessage());
+                        Log.d("VOLLEY", error.getCause().toString());
+                    }
+                });
+
+// Access the RequestQueue through your singleton class.
+        requestQueue.add(request);
+
+        return files;
     }
 }
