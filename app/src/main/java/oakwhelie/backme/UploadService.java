@@ -170,7 +170,6 @@ public class UploadService extends IntentService
                 .setSmallIcon(R.drawable.icon)
                 .setContentTitle(getResources().getString(R.string.app_name))
                 .setContentText(getResources().getString(R.string.notification_message_uploading))
-                .setSubText("0%")
                 .setPriority(NotificationCompat.PRIORITY_MAX)
                 .setContentIntent(null)
                 .setAutoCancel(false)
@@ -208,10 +207,6 @@ public class UploadService extends IntentService
                             @Override
                             public void run() {
                                 notification.setProgress(filequantity, progress, false);
-                                int percentage;
-                                if(progress != 0) percentage = (progress)*10/8;
-                                else percentage = 0;
-                                notification.setSubText(percentage+"%");
                                 notificationManagerCompat.notify(notfication_manager_upload_id, notification.build());
                             }
                         }).start();

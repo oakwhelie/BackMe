@@ -64,6 +64,7 @@ public class MainActivity extends AppCompatActivity
     {
         Intent intent = new Intent(this, UploadService.class);
         startService(intent);
+        Toast.makeText(this, "Backup Started", Toast.LENGTH_LONG).show();
     }
 
     public void getFolder(View v)
