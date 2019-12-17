@@ -41,8 +41,8 @@ public class UploadService extends IntentService
     final int notfication_manager_upload_id = 1012142;
     NotificationCompat.Builder notification;
 
-    String server1 = "http://192.168.100.6";
-    String server2 = "http://192.168.43.172";
+    String server1 = "http://first_server";
+    String server2 = "http://second_server";
     String upload = "/backme/backme.php";
 
     Handler handler;
