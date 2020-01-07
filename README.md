@@ -5,3 +5,7 @@ freely choose the folder, then set how often you want to back them up.
 must make your own server.
 
 server code in BackMe_Server
+
+
+
+*digunakan untuk menyelesaikan UAS Android
