@@ -199,7 +199,7 @@ public class SettingsActivity extends AppCompatActivity
                 final NumberPicker daypicker = new NumberPicker(SettingsActivity.this);
                 daypicker.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT, TableRow.LayoutParams.WRAP_CONTENT));
                 daypicker.setMaxValue(7);
-                daypicker.setMaxValue(1);
+                daypicker.setMinValue(1);
                 daypicker.setDisplayedValues(new String[]{  "Sunday",
                                                             "Monday",
                                                             "Tuesday",
